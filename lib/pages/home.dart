@@ -1,22 +1,38 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:meu_servico_app/fragment-routes.dart';
 import 'package:meu_servico_app/fragment/feriados.dart';
 import 'package:meu_servico_app/fragment/servicos.dart';
 
 class DrawerItem {
   String title;
   IconData icon;
-  String route;
-  Widget fragment;
+  Function fragment;
 
-  DrawerItem(this.title, this.route, this.fragment, this.icon);
+  DrawerItem(this.title, this.fragment, this.icon);
 }
 
 class HomePage extends StatefulWidget {
   static drawerItems() {
+    // var itens = [];
+    //
+    // FragmentRoutes.get().forEach((route) {
+    //   itens.add(new DrawerItem(route.title, route.fragment, route.icon));
+    // });
+    //
+    // return itens;
+
     return [
-      new DrawerItem('Serviços', 'servicos', new ServicosPage(), Icons.person_pin_rounded),
-      new DrawerItem('Feriados', 'feriados', new FeriadosPage(), Icons.calendar_today_outlined),
-      new DrawerItem('Importar/Exportar', 'importar-exportar', new FeriadosPage(), Icons.import_export),
+      new DrawerItem('Serviços', () {
+        return new ServicosPage();
+      }, Icons.person_pin_rounded),
+      new DrawerItem('Feriados', () {
+        return new FeriadosPage();
+      }, Icons.calendar_today_outlined),
+      new DrawerItem('Importar/Exportar', () {
+        return new FeriadosPage();
+      }, Icons.import_export),
     ];
   }
 
@@ -30,7 +46,7 @@ class HomePageState extends State<HomePage> {
   DrawerItem _selectedDrawer = HomePage.drawerItems()[0];
 
   _getDrawerItemWidget(DrawerItem item) {
-      return item.fragment;
+    return item.fragment();
   }
 
   _onSelectItem(DrawerItem item) {
@@ -43,14 +59,12 @@ class HomePageState extends State<HomePage> {
     var drawerOptions = <Widget>[];
     for (var i = 0; i < HomePage.drawerItems().length; i++) {
       var d = HomePage.drawerItems()[i];
-      drawerOptions.add(
-          new ListTile(
-            leading: new Icon(d.icon),
-            title: new Text(d.title),
-            selected: d.route == _selectedDrawer.route,
-            onTap: () => _onSelectItem(d),
-          )
-      );
+      drawerOptions.add(new ListTile(
+        leading: new Icon(d.icon),
+        title: new Text(d.title),
+        selected: d.title == _selectedDrawer.title,
+        onTap: () => _onSelectItem(d),
+      ));
     }
 
     return new Scaffold(

@@ -1,41 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:meu_servico_app/fragment-routes.dart';
-import 'package:meu_servico_app/fragment/feriados.dart';
-import 'package:meu_servico_app/fragment/servicos.dart';
-
-class DrawerItem {
-  String title;
-  IconData icon;
-  Function fragment;
-
-  DrawerItem(this.title, this.fragment, this.icon);
-}
+import 'package:meu_servico_app/f-routes.dart';
 
 class HomePage extends StatefulWidget {
-  static drawerItems() {
-    // var itens = [];
-    //
-    // FragmentRoutes.get().forEach((route) {
-    //   itens.add(new DrawerItem(route.title, route.fragment, route.icon));
-    // });
-    //
-    // return itens;
-
-    return [
-      new DrawerItem('Serviços', () {
-        return new ServicosPage();
-      }, Icons.person_pin_rounded),
-      new DrawerItem('Feriados', () {
-        return new FeriadosPage();
-      }, Icons.calendar_today_outlined),
-      new DrawerItem('Importar/Exportar', () {
-        return new FeriadosPage();
-      }, Icons.import_export),
-    ];
-  }
-
   @override
   State<StatefulWidget> createState() {
     return new HomePageState();
@@ -43,13 +9,13 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  DrawerItem _selectedDrawer = HomePage.drawerItems()[0];
+  Item _selectedDrawer = FragmentRoutes.first();
 
-  _getDrawerItemWidget(DrawerItem item) {
+  _getItemWidget(Item item) {
     return item.fragment();
   }
 
-  _onSelectItem(DrawerItem item) {
+  _onSelectItem(Item item) {
     setState(() => _selectedDrawer = item);
     Navigator.of(context).pop(); // close the drawer
   }
@@ -57,8 +23,8 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var drawerOptions = <Widget>[];
-    for (var i = 0; i < HomePage.drawerItems().length; i++) {
-      var d = HomePage.drawerItems()[i];
+    for (var i = 0; i < FragmentRoutes.all().length; i++) {
+      var d = FragmentRoutes.get(i);
       drawerOptions.add(new ListTile(
         leading: new Icon(d.icon),
         title: new Text(d.title),
@@ -92,7 +58,7 @@ class HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: _getDrawerItemWidget(_selectedDrawer),
+      body: _getItemWidget(_selectedDrawer),
     );
   }
 }

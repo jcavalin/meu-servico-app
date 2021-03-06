@@ -27,6 +27,10 @@ dependencies:
     sdk: flutter
   flutter_calendar_carousel: ^1.5.3
   intl: ^0.16.0
+  moor_flutter: ^3.1.0
+  sqlite3_flutter_libs: ^0.4.0+1
+  path_provider: ^1.6.0
+  path: ^1.7.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -34,8 +38,8 @@ dependencies:
   cupertino_icons: ^1.0.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  moor_generator: ^3.4.0
+  build_runner: ^1.10.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

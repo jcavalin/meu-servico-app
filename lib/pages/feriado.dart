@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:meu_servico_app/db/entities.dart';
+import 'package:meu_servico_app/services/feriado-service.dart';
 
 class FeriadoPage extends StatefulWidget {
   final int id;
@@ -8,26 +10,38 @@ class FeriadoPage extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return new FeriadoState(this.id);
+    return FeriadoState(this.id);
   }
 }
 
 class FeriadoState extends State<FeriadoPage> {
   final int id;
+  final service = FeriadoService();
+
   DateTime selectedDate;
-  TextEditingController _controller;
+  TextEditingController _datePickerController;
+  TextEditingController _descricaoController;
+
 
   FeriadoState(this.id);
 
   @override
   void initState() {
     super.initState();
-    _controller = new TextEditingController(text: '');
+    _datePickerController = TextEditingController(text: '');
+    _descricaoController = TextEditingController(text: '');
+  }
+
+  @override
+  void dispose() {
+    _datePickerController.dispose();
+    _descricaoController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
+    final _form = GlobalKey<FormState>();
 
     _selectDate(BuildContext context) async {
       final DateTime picked = await showDatePicker(
@@ -36,66 +50,72 @@ class FeriadoState extends State<FeriadoPage> {
         firstDate: DateTime(2020),
         lastDate: DateTime(2100),
       );
+
       if (picked != null && picked != selectedDate)
         setState(() {
           selectedDate = picked;
-          final f = new DateFormat('dd/MM/yyyy');
-          _controller.text = f.format(selectedDate);
-          // _controller.text = "${selectedDate.toLocal()}".split(' ')[0];
+          final f = DateFormat('dd/MM/yyyy');
+          _datePickerController.text = f.format(selectedDate);
         });
     }
 
-    return new Scaffold(
-        appBar: new AppBar(
-          // here we display the title corresponding to the fragment
-          // you can instead choose to have a static title
-          title: Text("Feriado"),
-        ),
-        body: Column(children: <Widget>[
-          Container(
-            margin: const EdgeInsets.only(left: 15, right: 15),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Data do feriado',
-                      suffixIcon: Icon(Icons.calendar_today_outlined),
-                    ),
-                    readOnly: true,
-                    controller: _controller,
-                    onTap: () => _selectDate(context),
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Informe a data';
-                      }
-                      return null;
-                    },
+    _save(BuildContext context) {
+      if (_form.currentState.validate()) {
+        service.save(Feriado(
+            id: this.id,
+            data: selectedDate,
+            descricao: _descricaoController.text
+        ));
+
+        Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text(
+                "${_datePickerController.text} | ${_descricaoController.text}")));
+      }
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Feriado"),
+      ),
+      body: Column(children: <Widget>[
+        Container(
+          margin: const EdgeInsets.only(left: 15, right: 15),
+          child: Form(
+            key: _form,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Data do feriado',
+                    suffixIcon: Icon(Icons.calendar_today_outlined),
                   ),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Descrição'),
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Informe a descrição';
-                      }
-                      return null;
-                    },
-                  ),
-                  Padding(
+                  readOnly: true,
+                  controller: _datePickerController,
+                  onTap: () => _selectDate(context),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Informe a data';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Descrição'),
+                  controller: _descricaoController,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Informe a descrição';
+                    }
+                    return null;
+                  },
+                ),
+                Builder(
+                  builder: (context2) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: ButtonTheme(
                         child: ElevatedButton(
-                            onPressed: () {
-                              // Validate returns true if the form is valid, or false
-                              // otherwise.
-                              if (_formKey.currentState.validate()) {
-                                // If the form is valid, display a Snackbar.
-                                Scaffold.of(context).showSnackBar(
-                                    SnackBar(content: Text("save")));
-                              }
-                            },
+                            onPressed: () => _save(context2),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
@@ -106,10 +126,17 @@ class FeriadoState extends State<FeriadoPage> {
                               ],
                             ))),
                   ),
-                ],
-              ),
+                )
+              ],
             ),
           ),
-        ]));
+        ),
+      ]),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: Icon(Icons.delete),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 }

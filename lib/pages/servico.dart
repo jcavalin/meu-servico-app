@@ -17,7 +17,6 @@ class ServicoState extends State<ServicoPage> {
   final int id;
   DateTime selectedDate;
   TextEditingController _controller;
-  String radioButtonItem = 'ONE';
   int radioValue = 1;
 
   ServicoState(this.id);

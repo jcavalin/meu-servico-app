@@ -27,9 +27,6 @@ class FragmentRoutes {
       new Item('Feriados', () {
         return new FeriadosPage();
       }, Icons.calendar_today_outlined),
-      new Item('Importar/Exportar', () {
-        return new FeriadosPage();
-      }, Icons.import_export),
     ];
   }
 }

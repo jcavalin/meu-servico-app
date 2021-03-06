@@ -8,7 +8,9 @@ class FeriadoService {
     return feriado;
   }
 
+  void delete(int id) => db.deleteFeriado(Feriado(id: id));
+
   Stream<List<Feriado>> list() => db.getFeriados();
 
-  Stream<Feriado> get(int id) => db.getFeriado(id);
+  Future<Feriado> get(int id) => db.getFeriado(id);
 }

@@ -32,7 +32,7 @@ class FeriadoState extends State<FeriadoPage> {
     _descricaoController = TextEditingController(text: '');
 
     if (this.id != null) {
-      service.get(id).forEach((feriado) {
+      service.get(id).then((feriado) {
         setState(() {
           selectedDate = feriado.data;
           _descricaoController.text = feriado.descricao;
@@ -44,7 +44,7 @@ class FeriadoState extends State<FeriadoPage> {
 
   @override
   void setState(fn) {
-    if(mounted) {
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -84,6 +84,37 @@ class FeriadoState extends State<FeriadoPage> {
 
         Navigator.pop(context);
       }
+    }
+
+    _delete(BuildContext context) {
+      service.delete(this.id);
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+
+    showAlertDialog(BuildContext context) {
+      // set up the buttons
+      // set up the AlertDialog
+      AlertDialog alert = AlertDialog(
+        title: Text("Excluir feriado"),
+        content: Text("Deseja excluir este feriado?"),
+        actions: [
+          FlatButton(
+            child: Text("Não"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          FlatButton(
+            child: Text("Sim"),
+            onPressed: () => _delete(context),
+          ),
+        ],
+      );
+      // show the dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => alert,
+      );
     }
 
     return Scaffold(
@@ -148,7 +179,7 @@ class FeriadoState extends State<FeriadoPage> {
       floatingActionButton: Visibility(
         visible: this.id != null,
         child: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () => showAlertDialog(context),
           child: Icon(Icons.delete),
           backgroundColor: Colors.red,
         ),

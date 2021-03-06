@@ -40,16 +40,15 @@ class Database extends _$Database {
 
   Database()
       : super(FlutterQueryExecutor.inDatabaseFolder(
-      path: "meu_servico.sqlite", logStatements: true));
+            path: "meu_servico.sqlite", logStatements: true));
 
   int get schemaVersion => 1;
 
   // Feriado
-  Future<List<Feriado>> getFeriados() =>
-      (select(feriados)
+  Stream<List<Feriado>> getFeriados() => (select(feriados)
         ..orderBy(
             [(t) => OrderingTerm(expression: t.data, mode: OrderingMode.desc)]))
-          .get();
+      .watch();
 
   Future insertFeriado(Feriado feriado) => into(feriados).insert(feriado);
 

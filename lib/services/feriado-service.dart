@@ -8,5 +8,5 @@ class FeriadoService {
     return feriado;
   }
 
-  Future<List<Feriado>> list() => db.getFeriados();
+  Stream<List<Feriado>> list() => db.getFeriados();
 }

@@ -15,15 +15,13 @@ class FeriadosState extends State<FeriadosPage> {
 
   @override
   void initState() {
-    service.list().then((feriados) {
+    service.list().forEach((feriados) {
       List<MessageItem> items = [];
 
-      feriados.forEach((feriado) =>
-        items.add(MessageItem(
-            data: dateFormat.format(feriado.data),
-            descricao: feriado.descricao,
-            id: feriado.id))
-      );
+      feriados.forEach((feriado) => items.add(MessageItem(
+          data: dateFormat.format(feriado.data),
+          descricao: feriado.descricao,
+          id: feriado.id)));
 
       setState(() => list = items);
     });

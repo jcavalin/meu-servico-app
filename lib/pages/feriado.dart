@@ -67,9 +67,7 @@ class FeriadoState extends State<FeriadoPage> {
             descricao: _descricaoController.text
         ));
 
-        Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text(
-                "${_datePickerController.text} | ${_descricaoController.text}")));
+        Navigator.pop(context);
       }
     }
 

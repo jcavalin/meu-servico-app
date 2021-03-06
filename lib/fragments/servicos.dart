@@ -4,6 +4,7 @@ import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart'
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/classes/event_list.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:meu_servico_app/pages/servico.dart';
 
 class ServicosPage extends StatefulWidget {
   ServicosPage({Key key, this.title}) : super(key: key);
@@ -80,7 +81,6 @@ class ServicosState extends State<ServicosPage> {
 
   @override
   Widget build(BuildContext context) {
-
     calendarCarousel = CalendarCarousel<Event>(
       locale: 'pt-br',
       todayBorderColor: Colors.green,
@@ -99,9 +99,8 @@ class ServicosState extends State<ServicosPage> {
       selectedDateTime: _currentDate2,
       targetDateTime: _targetDateTime,
       customGridViewPhysics: NeverScrollableScrollPhysics(),
-      markedDateCustomShapeBorder: CircleBorder(
-          side: BorderSide(color: Colors.yellow)
-      ),
+      markedDateCustomShapeBorder:
+          CircleBorder(side: BorderSide(color: Colors.yellow)),
       markedDateCustomTextStyle: TextStyle(
         fontSize: 18,
         color: Colors.blue,
@@ -143,18 +142,29 @@ class ServicosState extends State<ServicosPage> {
     );
 
     return new Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 16.0),
-                child: calendarCarousel,
-              ),
-              //
-            ],
-          ),
-        ));
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.0),
+              child: calendarCarousel,
+            ),
+            //
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ServicoPage()),
+          );
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.blue,
+      ),
+    );
   }
 }

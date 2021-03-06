@@ -8,7 +8,8 @@ class FeriadoService {
     return feriado;
   }
 
-  void delete(int id) => db.deleteFeriado(Feriado(id: id));
+  void delete(int id) =>
+      db.deleteFeriado(Feriado(id: id, data: null, descricao: null));
 
   Stream<List<Feriado>> list() => db.getFeriados();
 

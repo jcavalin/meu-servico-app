@@ -23,7 +23,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_calendar_carousel: ^1.5.3
+  intl: ^0.16.0
 
 
   # The following adds the Cupertino Icons font to your application.

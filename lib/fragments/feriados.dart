@@ -1,26 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:meu_servico_app/pages/feriado.dart';
 
 class FeriadosPage extends StatelessWidget {
-  List<MessageItem> items = List<MessageItem>.generate(
-      1000,
+  final List<MessageItem> items = List<MessageItem>.generate(
+      10,
       (i) => MessageItem(
           sender: "01/01/2018", body: "Confraternização Universal $i", id: i));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: ListView.builder(
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
+      body: ListView.builder(
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index];
 
-        return ListTile(
+          return ListTile(
+            leading: Icon(Icons.calendar_today_outlined),
             title: item.buildTitle(context),
             subtitle: item.buildSubtitle(context),
-            onTap: () => Scaffold.of(context)
-                .showSnackBar(SnackBar(content: Text("onTap ${item.id}"))));
-      },
-    ));
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => FeriadoPage(id: item.id))),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FeriadoPage()),
+          );
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.blue,
+      ),
+    );
   }
 }
 

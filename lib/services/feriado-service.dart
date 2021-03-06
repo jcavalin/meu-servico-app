@@ -9,4 +9,6 @@ class FeriadoService {
   }
 
   Stream<List<Feriado>> list() => db.getFeriados();
+
+  Stream<Feriado> get(int id) => db.getFeriado(id);
 }

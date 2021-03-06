@@ -50,6 +50,9 @@ class Database extends _$Database {
             [(t) => OrderingTerm(expression: t.data, mode: OrderingMode.desc)]))
       .watch();
 
+  Stream<Feriado> getFeriado(int id) =>
+      (select(feriados)..where((t) => t.id.equals(id))).watchSingle();
+
   Future insertFeriado(Feriado feriado) => into(feriados).insert(feriado);
 
   Future updateFeriado(Feriado feriado) => update(feriados).replace(feriado);

@@ -17,24 +17,41 @@ class FeriadoPage extends StatefulWidget {
 class FeriadoState extends State<FeriadoPage> {
   final int id;
   final service = FeriadoService();
+  final dateFormat = DateFormat('dd/MM/yyyy');
 
   DateTime selectedDate;
-  TextEditingController _datePickerController;
+  TextEditingController _dataController;
   TextEditingController _descricaoController;
-
 
   FeriadoState(this.id);
 
   @override
   void initState() {
     super.initState();
-    _datePickerController = TextEditingController(text: '');
+    _dataController = TextEditingController(text: '');
     _descricaoController = TextEditingController(text: '');
+
+    if (this.id != null) {
+      service.get(id).forEach((feriado) {
+        setState(() {
+          selectedDate = feriado.data;
+          _descricaoController.text = feriado.descricao;
+          _dataController.text = dateFormat.format(feriado.data);
+        });
+      });
+    }
+  }
+
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
   void dispose() {
-    _datePickerController.dispose();
+    _dataController.dispose();
     _descricaoController.dispose();
     super.dispose();
   }
@@ -54,8 +71,7 @@ class FeriadoState extends State<FeriadoPage> {
       if (picked != null && picked != selectedDate)
         setState(() {
           selectedDate = picked;
-          final f = DateFormat('dd/MM/yyyy');
-          _datePickerController.text = f.format(selectedDate);
+          _dataController.text = dateFormat.format(selectedDate);
         });
     }
 
@@ -64,8 +80,7 @@ class FeriadoState extends State<FeriadoPage> {
         service.save(Feriado(
             id: this.id,
             data: selectedDate,
-            descricao: _descricaoController.text
-        ));
+            descricao: _descricaoController.text));
 
         Navigator.pop(context);
       }
@@ -89,7 +104,7 @@ class FeriadoState extends State<FeriadoPage> {
                     suffixIcon: Icon(Icons.calendar_today_outlined),
                   ),
                   readOnly: true,
-                  controller: _datePickerController,
+                  controller: _dataController,
                   onTap: () => _selectDate(context),
                   validator: (value) {
                     if (value.isEmpty) {
@@ -130,10 +145,13 @@ class FeriadoState extends State<FeriadoPage> {
           ),
         ),
       ]),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(Icons.delete),
-        backgroundColor: Colors.red,
+      floatingActionButton: Visibility(
+        visible: this.id != null,
+        child: FloatingActionButton(
+          onPressed: () {},
+          child: Icon(Icons.delete),
+          backgroundColor: Colors.red,
+        ),
       ),
     );
   }

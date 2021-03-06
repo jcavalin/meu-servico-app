@@ -28,16 +28,28 @@ class Servicos extends Table {
 
 @UseMoor(tables: [Feriados, Servicos])
 class Database extends _$Database {
+  static Database db;
+
+  static get() {
+    if (db == null) {
+      db = Database();
+    }
+
+    return db;
+  }
+
   Database()
       : super(FlutterQueryExecutor.inDatabaseFolder(
-            path: "meu_servico.sqlite", logStatements: true));
+      path: "meu_servico.sqlite", logStatements: true));
 
   int get schemaVersion => 1;
 
   // Feriado
-  Future<List<Feriado>> allFeriados() => select(feriados).get();
-
-  Stream<List<Feriado>> watchFeriados() => select(feriados).watch();
+  Future<List<Feriado>> getFeriados() =>
+      (select(feriados)
+        ..orderBy(
+            [(t) => OrderingTerm(expression: t.data, mode: OrderingMode.desc)]))
+          .get();
 
   Future insertFeriado(Feriado feriado) => into(feriados).insert(feriado);
 
@@ -48,9 +60,7 @@ class Database extends _$Database {
   // Feriado
 
   // Serviço
-  Future<List<Servico>> allServicos() => select(servicos).get();
-
-  Stream<List<Servico>> watchServicos() => select(servicos).watch();
+  Future<List<Servico>> getServicos() => select(servicos).get();
 
   Future insertServico(Servico servico) => into(servicos).insert(servico);
 

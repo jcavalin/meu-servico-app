@@ -1,19 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:meu_servico_app/pages/feriado.dart';
+import 'package:meu_servico_app/services/feriado-service.dart';
 
-class FeriadosPage extends StatelessWidget {
-  final List<MessageItem> items = List<MessageItem>.generate(
-      10,
-      (i) => MessageItem(
-          sender: "01/01/2018", body: "Confraternização Universal $i", id: i));
+class FeriadosPage extends StatefulWidget {
+  @override
+  FeriadosState createState() => new FeriadosState();
+}
+
+class FeriadosState extends State<FeriadosPage> {
+  final service = FeriadoService();
+  final dateFormat = DateFormat('dd/MM/yyyy');
+  List<MessageItem> list = [];
+
+  @override
+  void initState() {
+    service.list().then((feriados) {
+      List<MessageItem> items = [];
+
+      feriados.forEach((feriado) =>
+        items.add(MessageItem(
+            data: dateFormat.format(feriado.data),
+            descricao: feriado.descricao,
+            id: feriado.id))
+      );
+
+      setState(() => list = items);
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView.builder(
-        itemCount: items.length,
+        itemCount: list.length,
         itemBuilder: (context, index) {
-          final item = items[index];
+          final item = list[index];
 
           return ListTile(
             leading: Icon(Icons.calendar_today_outlined),
@@ -41,13 +65,13 @@ class FeriadosPage extends StatelessWidget {
 }
 
 class MessageItem {
-  final String sender;
-  final String body;
+  final String data;
+  final String descricao;
   final int id;
 
-  MessageItem({this.sender, this.body, this.id});
+  MessageItem({this.data, this.descricao, this.id});
 
-  Widget buildTitle(BuildContext context) => Text(sender);
+  Widget buildTitle(BuildContext context) => Text(data);
 
-  Widget buildSubtitle(BuildContext context) => Text(body);
+  Widget buildSubtitle(BuildContext context) => Text(descricao);
 }

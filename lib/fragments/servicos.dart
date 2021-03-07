@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meu_servico_app/pages/servico.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 final Map<DateTime, List> _holidays = {
@@ -30,25 +31,6 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
     final _selectedDay = DateTime.now();
 
     _events = {
-      _selectedDay.subtract(Duration(days: 30)): [
-        'Event A0',
-        'Event B0',
-        'Event C0'
-      ],
-      _selectedDay.subtract(Duration(days: 27)): ['Event A1'],
-      _selectedDay.subtract(Duration(days: 20)): [
-        'Event A2',
-        'Event B2',
-        'Event C2',
-        'Event D2',
-        'Event D2',
-      ],
-      _selectedDay.subtract(Duration(days: 16)): ['Event A3', 'Event B3'],
-      _selectedDay.subtract(Duration(days: 10)): [
-        'Event A4',
-        'Event B4',
-        'Event C4'
-      ],
       _selectedDay.subtract(Duration(days: 4)): [
         'Event A5',
         'Event B5',
@@ -79,13 +61,7 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
         'Event B12',
         'Event C12',
         'Event D12'
-      ],
-      _selectedDay.add(Duration(days: 22)): ['Event A13', 'Event B13'],
-      _selectedDay.add(Duration(days: 26)): [
-        'Event A14',
-        'Event B14',
-        'Event C14'
-      ],
+      ]
     };
 
     _selectedEvents = _events[_selectedDay] ?? [];
@@ -113,11 +89,6 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
     });
   }
 
-  void _onVisibleDaysChanged(
-      DateTime first, DateTime last, CalendarFormat format) {
-    print('CALLBACK: _onVisibleDaysChanged');
-  }
-
   void _onCalendarCreated(
       DateTime first, DateTime last, CalendarFormat format) {
     print('CALLBACK: _onCalendarCreated');
@@ -130,11 +101,19 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           _buildTableCalendar(),
-          // _buildTableCalendarWithBuilders(),
-          const SizedBox(height: 8.0),
-          const SizedBox(height: 8.0),
+          Text("Serviços"),
           Expanded(child: _buildEventList()),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ServicoPage()),
+          );
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
     );
   }
@@ -154,10 +133,10 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
         CalendarFormat.week: '',
       },
       calendarStyle: CalendarStyle(
-        selectedColor: Colors.amberAccent,
+        selectedColor: Colors.lightBlueAccent,
         todayColor: Colors.blue,
-        markersColor: Colors.red,
-        outsideDaysVisible: false,
+        markersColor: Colors.blueGrey,
+        outsideDaysVisible: true,
         weekendStyle: TextStyle().copyWith(color: Colors.red),
         holidayStyle: TextStyle().copyWith(color: Colors.red),
       ),
@@ -166,68 +145,8 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
         formatButtonVisible: false,
       ),
       onDaySelected: _onDaySelected,
-      onVisibleDaysChanged: _onVisibleDaysChanged,
       onCalendarCreated: _onCalendarCreated,
-    );
-  }
-
-  // More advanced TableCalendar configuration (using Builders & Styles)
-  Widget _buildTableCalendarWithBuilders() {
-    return TableCalendar(
-      locale: 'pt_BR',
-      calendarController: _calendarController,
-      events: _events,
-      holidays: _holidays,
-      initialCalendarFormat: CalendarFormat.month,
-      formatAnimation: FormatAnimation.slide,
-      startingDayOfWeek: StartingDayOfWeek.sunday,
-      availableGestures: AvailableGestures.all,
-      availableCalendarFormats: const {
-        CalendarFormat.month: '',
-        CalendarFormat.week: '',
-      },
-      calendarStyle: CalendarStyle(
-        outsideDaysVisible: false,
-        weekendStyle: TextStyle().copyWith(color: Colors.blue[800]),
-        holidayStyle: TextStyle().copyWith(color: Colors.blue[800]),
-      ),
-      daysOfWeekStyle: DaysOfWeekStyle(
-        weekendStyle: TextStyle().copyWith(color: Colors.blue[600]),
-      ),
-      headerStyle: HeaderStyle(
-        centerHeaderTitle: true,
-        formatButtonVisible: false,
-      ),
       builders: CalendarBuilders(
-        selectedDayBuilder: (context, date, _) {
-          return FadeTransition(
-            opacity: Tween(begin: 0.0, end: 1.0).animate(_animationController),
-            child: Container(
-              margin: const EdgeInsets.all(4.0),
-              padding: const EdgeInsets.only(top: 5.0, left: 6.0),
-              color: Colors.deepOrange[300],
-              width: 100,
-              height: 100,
-              child: Text(
-                '${date.day}',
-                style: TextStyle().copyWith(fontSize: 16.0),
-              ),
-            ),
-          );
-        },
-        todayDayBuilder: (context, date, _) {
-          return Container(
-            margin: const EdgeInsets.all(4.0),
-            padding: const EdgeInsets.only(top: 5.0, left: 6.0),
-            color: Colors.amber[400],
-            width: 100,
-            height: 100,
-            child: Text(
-              '${date.day}',
-              style: TextStyle().copyWith(fontSize: 16.0),
-            ),
-          );
-        },
         markersBuilder: (context, date, events, holidays) {
           final children = <Widget>[];
 
@@ -254,12 +173,6 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
           return children;
         },
       ),
-      onDaySelected: (date, events, holidays) {
-        _onDaySelected(date, events, holidays);
-        _animationController.forward(from: 0.0);
-      },
-      onVisibleDaysChanged: _onVisibleDaysChanged,
-      onCalendarCreated: _onCalendarCreated,
     );
   }
 
@@ -297,21 +210,23 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
   }
 
   Widget _buildEventList() {
-    return ListView(
-      children: _selectedEvents
-          .map((event) => Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 0.8),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: ListTile(
-                  title: Text(event.toString()),
-                  onTap: () => print('$event tapped!'),
-                ),
-              ))
-          .toList(),
-    );
+    return /*Column(mainAxisSize: MainAxisSize.max, children: <Widget>[*/
+        ListView.builder(
+      itemCount: _selectedEvents.length,
+      itemBuilder: (context, index) {
+        final item = _selectedEvents[index];
+
+        return ListTile(
+          leading: Icon(Icons.calendar_today_outlined),
+          title: Text(item.toString()),
+          subtitle: Text("nada"),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ServicoPage(id: item.id))),
+        );
+      },
+    )
+        /*])*/;
   }
 }

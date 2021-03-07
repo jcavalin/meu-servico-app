@@ -19,24 +19,22 @@ class FeriadoState extends State<FeriadoPage> {
   final service = FeriadoService();
   final dateFormat = DateFormat('dd/MM/yyyy');
 
-  DateTime selectedDate;
-  TextEditingController _dataController;
-  TextEditingController _descricaoController;
+  DateTime dataSelected;
+  TextEditingController dataController = TextEditingController(text: '');
+  TextEditingController descricaoController = TextEditingController(text: '');
 
   FeriadoState(this.id);
 
   @override
   void initState() {
     super.initState();
-    _dataController = TextEditingController(text: '');
-    _descricaoController = TextEditingController(text: '');
 
     if (this.id != null) {
       service.get(id).then((feriado) {
         setState(() {
-          selectedDate = feriado.data;
-          _descricaoController.text = feriado.descricao;
-          _dataController.text = dateFormat.format(feriado.data);
+          dataSelected = feriado.data;
+          descricaoController.text = feriado.descricao;
+          dataController.text = dateFormat.format(feriado.data);
         });
       });
     }
@@ -51,8 +49,8 @@ class FeriadoState extends State<FeriadoPage> {
 
   @override
   void dispose() {
-    _dataController.dispose();
-    _descricaoController.dispose();
+    dataController.dispose();
+    descricaoController.dispose();
     super.dispose();
   }
 
@@ -63,15 +61,15 @@ class FeriadoState extends State<FeriadoPage> {
     _selectDate(BuildContext context) async {
       final DateTime picked = await showDatePicker(
         context: context,
-        initialDate: selectedDate != null ? selectedDate : DateTime.now(),
+        initialDate: dataSelected != null ? dataSelected : DateTime.now(),
         firstDate: DateTime(2020),
-        lastDate: DateTime(2100),
+        lastDate: DateTime(2090),
       );
 
-      if (picked != null && picked != selectedDate)
+      if (picked != null && picked != dataSelected)
         setState(() {
-          selectedDate = picked;
-          _dataController.text = dateFormat.format(selectedDate);
+          dataSelected = picked;
+          dataController.text = dateFormat.format(dataSelected);
         });
     }
 
@@ -79,8 +77,8 @@ class FeriadoState extends State<FeriadoPage> {
       if (_form.currentState.validate()) {
         service.save(Feriado(
             id: this.id,
-            data: selectedDate,
-            descricao: _descricaoController.text));
+            data: dataSelected,
+            descricao: descricaoController.text));
 
         Navigator.pop(context);
       }
@@ -121,60 +119,62 @@ class FeriadoState extends State<FeriadoPage> {
       appBar: AppBar(
         title: Text("Feriado"),
       ),
-      body: Column(children: <Widget>[
-        Container(
-          margin: const EdgeInsets.only(left: 15, right: 15),
-          child: Form(
-            key: _form,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Data do feriado',
-                    suffixIcon: Icon(Icons.calendar_today_outlined),
+      body: ListView(children: <Widget>[
+        Column(children: <Widget>[
+          Container(
+            margin: const EdgeInsets.only(left: 15, right: 15),
+            child: Form(
+              key: _form,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Data do feriado',
+                      suffixIcon: Icon(Icons.calendar_today_outlined),
+                    ),
+                    readOnly: true,
+                    controller: dataController,
+                    onTap: () => _selectDate(context),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Informe a data';
+                      }
+                      return null;
+                    },
                   ),
-                  readOnly: true,
-                  controller: _dataController,
-                  onTap: () => _selectDate(context),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Informe a data';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Descrição'),
-                  controller: _descricaoController,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Informe a descrição';
-                    }
-                    return null;
-                  },
-                ),
-                Builder(
-                  builder: (context2) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: ButtonTheme(
-                        child: ElevatedButton(
-                            onPressed: () => _save(context2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(Icons.add),
-                                Text(this.id == null
-                                    ? "Incluir feriado"
-                                    : "Alterar feriado")
-                              ],
-                            ))),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Descrição'),
+                    controller: descricaoController,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Informe a descrição';
+                      }
+                      return null;
+                    },
                   ),
-                )
-              ],
+                  Builder(
+                    builder: (btnContext) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: ButtonTheme(
+                          child: ElevatedButton(
+                              onPressed: () => _save(btnContext),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Icon(Icons.add),
+                                  Text(this.id == null
+                                      ? "Incluir feriado"
+                                      : "Alterar feriado")
+                                ],
+                              ))),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
-        ),
+        ]),
       ]),
       floatingActionButton: Visibility(
         visible: this.id != null,

@@ -247,7 +247,7 @@ class Servico extends DataClass implements Insertable<Servico> {
   final int folga;
   final DateTime data;
   final String tipo;
-  final int grupo;
+  final String grupo;
   Servico(
       {@required this.id,
       @required this.nome,
@@ -268,7 +268,8 @@ class Servico extends DataClass implements Insertable<Servico> {
       data:
           dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}data']),
       tipo: stringType.mapFromDatabaseResponse(data['${effectivePrefix}tipo']),
-      grupo: intType.mapFromDatabaseResponse(data['${effectivePrefix}grupo']),
+      grupo:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}grupo']),
     );
   }
   @override
@@ -290,7 +291,7 @@ class Servico extends DataClass implements Insertable<Servico> {
       map['tipo'] = Variable<String>(tipo);
     }
     if (!nullToAbsent || grupo != null) {
-      map['grupo'] = Variable<int>(grupo);
+      map['grupo'] = Variable<String>(grupo);
     }
     return map;
   }
@@ -317,7 +318,7 @@ class Servico extends DataClass implements Insertable<Servico> {
       folga: serializer.fromJson<int>(json['folga']),
       data: serializer.fromJson<DateTime>(json['data']),
       tipo: serializer.fromJson<String>(json['tipo']),
-      grupo: serializer.fromJson<int>(json['grupo']),
+      grupo: serializer.fromJson<String>(json['grupo']),
     );
   }
   @override
@@ -329,7 +330,7 @@ class Servico extends DataClass implements Insertable<Servico> {
       'folga': serializer.toJson<int>(folga),
       'data': serializer.toJson<DateTime>(data),
       'tipo': serializer.toJson<String>(tipo),
-      'grupo': serializer.toJson<int>(grupo),
+      'grupo': serializer.toJson<String>(grupo),
     };
   }
 
@@ -339,7 +340,7 @@ class Servico extends DataClass implements Insertable<Servico> {
           int folga,
           DateTime data,
           String tipo,
-          int grupo}) =>
+          String grupo}) =>
       Servico(
         id: id ?? this.id,
         nome: nome ?? this.nome,
@@ -386,7 +387,7 @@ class ServicosCompanion extends UpdateCompanion<Servico> {
   final Value<int> folga;
   final Value<DateTime> data;
   final Value<String> tipo;
-  final Value<int> grupo;
+  final Value<String> grupo;
   const ServicosCompanion({
     this.id = const Value.absent(),
     this.nome = const Value.absent(),
@@ -401,7 +402,7 @@ class ServicosCompanion extends UpdateCompanion<Servico> {
     @required int folga,
     @required DateTime data,
     @required String tipo,
-    @required int grupo,
+    @required String grupo,
   })  : nome = Value(nome),
         folga = Value(folga),
         data = Value(data),
@@ -413,7 +414,7 @@ class ServicosCompanion extends UpdateCompanion<Servico> {
     Expression<int> folga,
     Expression<DateTime> data,
     Expression<String> tipo,
-    Expression<int> grupo,
+    Expression<String> grupo,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -431,7 +432,7 @@ class ServicosCompanion extends UpdateCompanion<Servico> {
       Value<int> folga,
       Value<DateTime> data,
       Value<String> tipo,
-      Value<int> grupo}) {
+      Value<String> grupo}) {
     return ServicosCompanion(
       id: id ?? this.id,
       nome: nome ?? this.nome,
@@ -461,7 +462,7 @@ class ServicosCompanion extends UpdateCompanion<Servico> {
       map['tipo'] = Variable<String>(tipo.value);
     }
     if (grupo.present) {
-      map['grupo'] = Variable<int>(grupo.value);
+      map['grupo'] = Variable<String>(grupo.value);
     }
     return map;
   }
@@ -542,11 +543,11 @@ class $ServicosTable extends Servicos with TableInfo<$ServicosTable, Servico> {
   }
 
   final VerificationMeta _grupoMeta = const VerificationMeta('grupo');
-  GeneratedIntColumn _grupo;
+  GeneratedTextColumn _grupo;
   @override
-  GeneratedIntColumn get grupo => _grupo ??= _constructGrupo();
-  GeneratedIntColumn _constructGrupo() {
-    return GeneratedIntColumn(
+  GeneratedTextColumn get grupo => _grupo ??= _constructGrupo();
+  GeneratedTextColumn _constructGrupo() {
+    return GeneratedTextColumn(
       'grupo',
       $tableName,
       false,

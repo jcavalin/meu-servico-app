@@ -25,7 +25,7 @@ class Servicos extends Table {
 
   TextColumn get tipo => text()();
 
-  IntColumn get grupo => integer()();
+  TextColumn get grupo => text()();
 }
 
 @UseMoor(tables: [Feriados, Servicos])
@@ -76,7 +76,10 @@ class Database extends _$Database {
   // Feriado
 
   // Serviço
-  Future<List<Servico>> getServicos() => select(servicos).get();
+  Stream<List<Servico>> getServicos() => select(servicos).watch();
+
+  Future<Servico> getServico(int id) =>
+      (select(servicos)..where((t) => t.id.equals(id))).getSingle();
 
   Future insertServico(Servico servico) => into(servicos).insert(servico);
 

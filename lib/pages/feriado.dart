@@ -56,9 +56,9 @@ class FeriadoState extends State<FeriadoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final _form = GlobalKey<FormState>();
+    final form = GlobalKey<FormState>();
 
-    _selectDate(BuildContext context) async {
+    selectDate(BuildContext context) async {
       final DateTime picked = await showDatePicker(
         context: context,
         initialDate: dataSelected != null ? dataSelected : DateTime.now(),
@@ -73,8 +73,8 @@ class FeriadoState extends State<FeriadoPage> {
         });
     }
 
-    _save(BuildContext context) {
-      if (_form.currentState.validate()) {
+    save(BuildContext context) {
+      if (form.currentState.validate()) {
         service.save(Feriado(
             id: this.id,
             data: dataSelected,
@@ -84,7 +84,7 @@ class FeriadoState extends State<FeriadoPage> {
       }
     }
 
-    _delete(BuildContext context) {
+    delete(BuildContext context) {
       service.delete(this.id);
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
@@ -104,7 +104,7 @@ class FeriadoState extends State<FeriadoPage> {
           ),
           FlatButton(
             child: Text("Sim"),
-            onPressed: () => _delete(context),
+            onPressed: () => delete(context),
           ),
         ],
       );
@@ -124,7 +124,7 @@ class FeriadoState extends State<FeriadoPage> {
           Container(
             margin: const EdgeInsets.only(left: 15, right: 15),
             child: Form(
-              key: _form,
+              key: form,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -135,7 +135,7 @@ class FeriadoState extends State<FeriadoPage> {
                     ),
                     readOnly: true,
                     controller: dataController,
-                    onTap: () => _selectDate(context),
+                    onTap: () => selectDate(context),
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Informe a data';
@@ -158,7 +158,7 @@ class FeriadoState extends State<FeriadoPage> {
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       child: ButtonTheme(
                           child: ElevatedButton(
-                              onPressed: () => _save(btnContext),
+                              onPressed: () => save(btnContext),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[

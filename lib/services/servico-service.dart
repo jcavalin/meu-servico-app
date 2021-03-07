@@ -25,7 +25,7 @@ class ServicoService {
     return servico;
   }
 
-  void delete(int id) => db.deleteServico(Servico(id: id));
+  void delete(int id, bool excluirProximos) => db.deleteServico(Servico(id: id));
 
   Stream<List<Servico>> list() => db.getServicos();
 
@@ -39,6 +39,16 @@ class ServicoService {
     };
 
     return tipos[number];
+  }
+
+  int getNumberByTipo(String tipo) {
+    Map tipos = {
+      'preta' : 1,
+      'vermelha' : 2,
+      'corrida' : 3,
+    };
+
+    return tipos[tipo];
   }
 
   void calcularProximos(Servico servico) {

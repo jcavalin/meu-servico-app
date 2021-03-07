@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:meu_servico_app/db/entities.dart';
 import 'package:meu_servico_app/services/servico-service.dart';
 
 class ServicoPage extends StatefulWidget {
@@ -34,7 +33,17 @@ class ServicoState extends State<ServicoPage> {
   void initState() {
     super.initState();
 
-    if (this.id != null) {}
+    if (this.id != null) {
+      service.get(id).then((servico) {
+        setState(() {
+          nomeController.text = servico.nome;
+          folgaController.text = servico.folga.toString();
+          dataSelected = servico.data;
+          dataController.text = dateFormat.format(servico.data);
+          tipo = service.getNumberByTipo(servico.tipo);
+        });
+      });
+    }
   }
 
   @override
@@ -54,9 +63,9 @@ class ServicoState extends State<ServicoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final _form = GlobalKey<FormState>();
+    final form = GlobalKey<FormState>();
 
-    _selectDate(BuildContext context) async {
+    selectDate(BuildContext context) async {
       final DateTime picked = await showDatePicker(
         context: context,
         initialDate: dataSelected != null ? dataSelected : DateTime.now(),
@@ -70,8 +79,8 @@ class ServicoState extends State<ServicoPage> {
         });
     }
 
-    _save(BuildContext context) {
-      if (_form.currentState.validate()) {
+    save(BuildContext context) {
+      if (form.currentState.validate()) {
         service.save(
             id: this.id,
             nome: nomeController.text,
@@ -85,6 +94,41 @@ class ServicoState extends State<ServicoPage> {
       }
     }
 
+    delete(BuildContext context, bool excluirProximos) {
+      service.delete(this.id, excluirProximos);
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+
+    showAlertDialog(BuildContext context) {
+      // set up the buttons
+      // set up the AlertDialog
+      AlertDialog alert = AlertDialog(
+        title: Text("Excluir serviço"),
+        content: Text("Deseja excluir este serviço?"),
+        actions: [
+          FlatButton(
+            child: Text("Não"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          FlatButton(
+            child: Text("Sim, este e os próximos"),
+            onPressed: () => delete(context, true),
+          ),
+          FlatButton(
+            child: Text("Sim, somente este"),
+            onPressed: () => delete(context, false),
+          ),
+        ],
+      );
+      // show the dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => alert,
+      );
+    }
+
     return new Scaffold(
         appBar: new AppBar(
           title: Text("Serviço"),
@@ -94,7 +138,7 @@ class ServicoState extends State<ServicoPage> {
             Container(
               margin: const EdgeInsets.only(left: 15, right: 15),
               child: Form(
-                key: _form,
+                key: form,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -130,7 +174,7 @@ class ServicoState extends State<ServicoPage> {
                       ),
                       readOnly: true,
                       controller: dataController,
-                      onTap: () => _selectDate(context),
+                      onTap: () => selectDate(context),
                       validator: (value) {
                         if (value.isEmpty) {
                           return 'Informe a data';
@@ -176,7 +220,10 @@ class ServicoState extends State<ServicoPage> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: Text('Calcular próximos serviços?',
+                      child: Text(
+                          this.id == null
+                              ? 'Calcular próximos serviços?'
+                              : 'Alterar próximos serviços?',
                           style: new TextStyle(fontSize: 16.0)),
                     ),
                     Row(
@@ -210,7 +257,7 @@ class ServicoState extends State<ServicoPage> {
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: ButtonTheme(
                             child: ElevatedButton(
-                                onPressed: () => _save(btnContext),
+                                onPressed: () => save(btnContext),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
@@ -231,7 +278,7 @@ class ServicoState extends State<ServicoPage> {
         floatingActionButton: Visibility(
           visible: this.id != null,
           child: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () => showAlertDialog(context),
             child: Icon(Icons.delete),
             backgroundColor: Colors.red,
           ),

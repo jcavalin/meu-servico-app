@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:meu_servico_app/pages/servico.dart';
+import 'package:meu_servico_app/services/servico-service.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-final Map<DateTime, List> _holidays = {
+final Map<DateTime, List> holidays = {
   DateTime(2021, 3, 1): ['New Year\'s Day'],
   DateTime(2021, 3, 2): ['Epiphany'],
   DateTime(2021, 3, 14): ['Valentine\'s Day'],
@@ -20,78 +21,63 @@ class ServicosPage extends StatefulWidget {
 }
 
 class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
-  Map<DateTime, List> _events;
-  List _selectedEvents;
-  AnimationController _animationController;
-  CalendarController _calendarController;
+  Map<DateTime, List> events;
+  List selectedEvents;
+  AnimationController animationController;
+  CalendarController calendarController;
+  final service = ServicoService();
 
   @override
   void initState() {
     super.initState();
-    final _selectedDay = DateTime.now();
+    final selectedDay = DateTime.now();
 
-    _events = {
-      _selectedDay.subtract(Duration(days: 4)): [
-        'Event A5',
-        'Event B5',
-        'Event C5'
-      ],
-      _selectedDay.subtract(Duration(days: 2)): ['Event A6', 'Event B6'],
-      _selectedDay: ['Event A7', 'Event B7', 'Event C7', 'Event D7'],
-      _selectedDay.add(Duration(days: 1)): [
-        'Event A8',
-        'Event B8',
-        'Event C8',
-        'Event D8',
-        'Event D8',
-        'Event D8',
-        'Event D8',
-        'Event D8',
-      ],
-      _selectedDay.add(Duration(days: 3)):
-          Set.from(['Event A9', 'Event A9', 'Event B9']).toList(),
-      _selectedDay.add(Duration(days: 7)): [
-        'Event A10',
-        'Event B10',
-        'Event C10'
-      ],
-      _selectedDay.add(Duration(days: 11)): ['Event A11', 'Event B11'],
-      _selectedDay.add(Duration(days: 17)): [
-        'Event A12',
-        'Event B12',
-        'Event C12',
-        'Event D12'
-      ]
-    };
+    service.list().forEach((servicos) {
+      Map<DateTime, List> items = Map();
 
-    _selectedEvents = _events[_selectedDay] ?? [];
-    _calendarController = CalendarController();
+      servicos.forEach((servico) {
+        if (items[servico.data] == null) {
+          items[servico.data] = List();
+        }
 
-    _animationController = AnimationController(
+        items[servico.data].add(servico);
+      });
+
+      setState(() => events = items);
+    });
+
+    selectedEvents = events != null && events[selectedDay] != null
+        ? events[selectedDay]
+        : [];
+    calendarController = CalendarController();
+
+    animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
 
-    _animationController.forward();
+    animationController.forward();
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
-    _calendarController.dispose();
+    animationController.dispose();
+    calendarController.dispose();
     super.dispose();
   }
 
-  void _onDaySelected(DateTime day, List events, List holidays) {
-    print('CALLBACK: _onDaySelected');
-    setState(() {
-      _selectedEvents = events;
-    });
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
-  void _onCalendarCreated(
-      DateTime first, DateTime last, CalendarFormat format) {
-    print('CALLBACK: _onCalendarCreated');
+  void onDaySelected(DateTime day, List events, List holidays) {
+    print('CALLBACK: onDaySelected');
+    setState(() {
+      selectedEvents = events;
+    });
   }
 
   @override
@@ -100,9 +86,9 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
       body: Column(
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          _buildTableCalendar(),
+          buildTableCalendar(),
           Text("Serviços"),
-          Expanded(child: _buildEventList()),
+          Expanded(child: buildEventList()),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -119,11 +105,11 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
   }
 
   // Simple TableCalendar configuration (using Styles)
-  Widget _buildTableCalendar() {
+  Widget buildTableCalendar() {
     return TableCalendar(
-      calendarController: _calendarController,
-      events: _events,
-      holidays: _holidays,
+      calendarController: calendarController,
+      events: events,
+      holidays: holidays,
       locale: 'pt_BR',
       initialCalendarFormat: CalendarFormat.month,
       formatAnimation: FormatAnimation.slide,
@@ -144,14 +130,13 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
         centerHeaderTitle: true,
         formatButtonVisible: false,
       ),
-      onDaySelected: _onDaySelected,
-      onCalendarCreated: _onCalendarCreated,
+      onDaySelected: onDaySelected,
       builders: CalendarBuilders(
         markersBuilder: (context, date, events, holidays) {
           final children = <Widget>[];
 
           if (events.isNotEmpty) {
-            children.add(_buildEventsMarker(date, events));
+            children.add(buildEventsMarker(date, events));
           }
 
           // if (holidays.isNotEmpty) {
@@ -159,7 +144,7 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
           //     Positioned(
           //       right: -2,
           //       top: -2,
-          //       child: _buildHolidaysMarker(),
+          //       child: buildHolidaysMarker(),
           //     ),
           //   );
           // }
@@ -170,7 +155,7 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildEventsMarker(DateTime date, List events) {
+  Widget buildEventsMarker(DateTime date, List events) {
     return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -179,9 +164,9 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
             duration: const Duration(milliseconds: 300),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _calendarController.isSelected(date)
+              color: calendarController.isSelected(date)
                   ? Colors.brown[500]
-                  : _calendarController.isToday(date)
+                  : calendarController.isToday(date)
                       ? Colors.brown[300]
                       : Colors.black87,
             ),
@@ -199,7 +184,7 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
         ]);
   }
 
-  Widget _buildHolidaysMarker() {
+  Widget buildHolidaysMarker() {
     return Icon(
       Icons.add_box,
       size: 20.0,
@@ -207,12 +192,15 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildEventList() {
-    return /*Column(mainAxisSize: MainAxisSize.max, children: <Widget>[*/
-        ListView.builder(
-      itemCount: _selectedEvents.length,
+  Widget buildEventList() {
+    if (selectedEvents.length == 0) {
+      return Text("Nenhum serviço para este dia!");
+    }
+
+    return ListView.builder(
+      itemCount: selectedEvents.length,
       itemBuilder: (context, index) {
-        final item = _selectedEvents[index];
+        final item = selectedEvents[index];
 
         return ListTile(
           leading: Icon(Icons.calendar_today_outlined),
@@ -224,7 +212,6 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
                   builder: (context) => ServicoPage(id: item.id))),
         );
       },
-    )
-        /*])*/;
+    );
   }
 }

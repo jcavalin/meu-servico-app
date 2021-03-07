@@ -91,6 +91,8 @@ class Database extends _$Database {
 
   Future deleteServico(Servico servico) => delete(servicos).delete(servico);
 
-  void deleteServicoByGrupo(String grupo) => (delete(servicos)..where((t) => t.grupo.equals(grupo))).go();
+  Future deleteServicosByGrupo(String grupo) => (delete(servicos)..where((t) => t.grupo.equals(grupo))).go();
+
+  Future deleteNextServicos(Servico servico) => (delete(servicos)..where((t) => t.grupo.equals(servico.grupo) & t.data.isBiggerOrEqualValue(servico.data))).go();
 // Serviço
 }

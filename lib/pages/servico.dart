@@ -96,7 +96,7 @@ class ServicoState extends State<ServicoPage> {
             data: dataSelected,
             tipo: service.getTipoByNumber(tipo),
             grupo: grupo,
-            calcularProximos: calcularProximos == 1);
+            saveNext: calcularProximos == 1);
 
         Navigator.pop(context);
       }

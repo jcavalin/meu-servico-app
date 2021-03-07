@@ -151,24 +151,18 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
           final children = <Widget>[];
 
           if (events.isNotEmpty) {
-            children.add(
-              Positioned(
-                right: 1,
-                bottom: 1,
-                child: _buildEventsMarker(date, events),
-              ),
-            );
+            children.add(_buildEventsMarker(date, events));
           }
 
-          if (holidays.isNotEmpty) {
-            children.add(
-              Positioned(
-                right: -2,
-                top: -2,
-                child: _buildHolidaysMarker(),
-              ),
-            );
-          }
+          // if (holidays.isNotEmpty) {
+          //   children.add(
+          //     Positioned(
+          //       right: -2,
+          //       top: -2,
+          //       child: _buildHolidaysMarker(),
+          //     ),
+          //   );
+          // }
 
           return children;
         },
@@ -177,28 +171,32 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
   }
 
   Widget _buildEventsMarker(DateTime date, List events) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        shape: BoxShape.rectangle,
-        color: _calendarController.isSelected(date)
-            ? Colors.brown[500]
-            : _calendarController.isToday(date)
-                ? Colors.brown[300]
-                : Colors.blue[400],
-      ),
-      width: 16.0,
-      height: 16.0,
-      child: Center(
-        child: Text(
-          '${events.length}',
-          style: TextStyle().copyWith(
-            color: Colors.white,
-            fontSize: 12.0,
-          ),
-        ),
-      ),
-    );
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _calendarController.isSelected(date)
+                  ? Colors.brown[500]
+                  : _calendarController.isToday(date)
+                      ? Colors.brown[300]
+                      : Colors.black87,
+            ),
+            width: 42.0,
+            height: 42.0,
+            child: Center(
+              child: Text(
+                '${date.day}',
+                style: TextStyle().copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          )
+        ]);
   }
 
   Widget _buildHolidaysMarker() {

@@ -91,7 +91,7 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
   }
 
   void getEventsByDay(DateTime data) {
-    service.listByDate(data).forEach((servicos) {
+    service.listByDate(data).then((servicos) {
       List items = List();
 
       servicos.forEach((servico) => items.add(servico));
@@ -116,8 +116,10 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ServicoPage(data: selectedDay)),
-          );
+                builder: (context) => ServicoPage(
+                    data: DateTime(
+                        selectedDay.year, selectedDay.month, selectedDay.day))),
+          ).then((_) => getEventsByDay(selectedDay));
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.blue,
@@ -234,9 +236,10 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
                   color:
                       (item.tipo == 'vermelha' ? Colors.red : Colors.black))),
           onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ServicoPage(id: item.id))),
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ServicoPage(id: item.id)))
+              .then((_) => getEventsByDay(selectedDay)),
         );
       },
     );

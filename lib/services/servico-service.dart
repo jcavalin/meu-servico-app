@@ -35,7 +35,7 @@ class ServicoService {
 
   Stream<List<Servico>> list() => db.getServicos();
 
-  Stream<List<Servico>> listByDate(DateTime data) =>
+  Future<List<Servico>> listByDate(DateTime data) =>
       db.getServicosByDate(DateTime(data.year, data.month, data.day));
 
   Future<Servico> get(int id) => db.getServico(id);

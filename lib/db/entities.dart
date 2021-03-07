@@ -79,8 +79,8 @@ class Database extends _$Database {
   // Serviço
   Stream<List<Servico>> getServicos() => select(servicos).watch();
 
-  Stream<List<Servico>> getServicosByDate(DateTime data) =>
-      (select(servicos)..where((t) => t.data.equals(data))).watch();
+  Future<List<Servico>> getServicosByDate(DateTime data) =>
+      (select(servicos)..where((t) => t.data.equals(data))).get();
 
   Future<Servico> getServico(int id) =>
       (select(servicos)..where((t) => t.id.equals(id))).getSingle();

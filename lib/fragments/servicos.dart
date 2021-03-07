@@ -155,22 +155,26 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
       ),
       onDaySelected: onDaySelected,
       builders: CalendarBuilders(
+        todayDayBuilder: (context, date, _) {
+          return Container(
+            margin: const EdgeInsets.all(4.0),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(width: 1, color: Colors.blue),
+            ),
+            child: Center(
+              child: Text(
+                '${date.day}',
+              ),
+            ),
+          );
+        },
         markersBuilder: (context, date, events, holidays) {
           final children = <Widget>[];
 
           if (events.isNotEmpty) {
             children.add(buildEventsMarker(date, events));
           }
-
-          // if (holidays.isNotEmpty) {
-          //   children.add(
-          //     Positioned(
-          //       right: -2,
-          //       top: -2,
-          //       child: buildHolidaysMarker(),
-          //     ),
-          //   );
-          // }
 
           return children;
         },
@@ -205,14 +209,6 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
             ),
           )
         ]);
-  }
-
-  Widget buildHolidaysMarker() {
-    return Icon(
-      Icons.add_box,
-      size: 20.0,
-      color: Colors.blueGrey[800],
-    );
   }
 
   Widget buildEventList() {

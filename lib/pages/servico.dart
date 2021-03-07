@@ -5,17 +5,20 @@ import 'package:meu_servico_app/services/servico-service.dart';
 
 class ServicoPage extends StatefulWidget {
   final int id;
+  final DateTime data;
 
-  ServicoPage({Key key, this.id}) : super(key: key);
+  ServicoPage({Key key, this.id, this.data}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return new ServicoState(this.id);
+    return new ServicoState(this.id, this.data);
   }
 }
 
 class ServicoState extends State<ServicoPage> {
   final int id;
+  final DateTime data;
+
   final service = ServicoService();
   final dateFormat = DateFormat('dd/MM/yyyy');
 
@@ -27,7 +30,7 @@ class ServicoState extends State<ServicoPage> {
   int calcularProximos = 0;
   String grupo;
 
-  ServicoState(this.id);
+  ServicoState(this.id, this.data);
 
   @override
   void initState() {
@@ -42,6 +45,11 @@ class ServicoState extends State<ServicoPage> {
           dataController.text = dateFormat.format(servico.data);
           tipo = service.getNumberByTipo(servico.tipo);
         });
+      });
+    } else if (this.data != null) {
+      setState(() {
+        dataSelected = data;
+        dataController.text = dateFormat.format(data);
       });
     }
   }

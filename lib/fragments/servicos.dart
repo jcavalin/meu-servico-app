@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:meu_servico_app/pages/servico.dart';
+import 'package:meu_servico_app/services/feriado-service.dart';
 import 'package:meu_servico_app/services/servico-service.dart';
 import 'package:table_calendar/table_calendar.dart';
-
-final Map<DateTime, List> holidays = {
-  DateTime(2021, 3, 1): ['New Year\'s Day'],
-  DateTime(2021, 3, 2): ['Epiphany'],
-  DateTime(2021, 3, 14): ['Valentine\'s Day'],
-  DateTime(2021, 3, 21): ['Easter Sunday'],
-  DateTime(2021, 3, 22): ['Easter Monday'],
-};
 
 class ServicosPage extends StatefulWidget {
   ServicosPage({Key key, this.title}) : super(key: key);
@@ -21,16 +15,20 @@ class ServicosPage extends StatefulWidget {
 }
 
 class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
+  final service = ServicoService();
+  final serviceFeriado = FeriadoService();
+  final dateFormat = DateFormat('dd/MM/yyyy');
+
   Map<DateTime, List> events;
+  Map<DateTime, List> holidays;
   List selectedEvents;
   AnimationController animationController;
   CalendarController calendarController;
-  final service = ServicoService();
+  DateTime selectedDay = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    final selectedDay = DateTime.now();
 
     service.list().forEach((servicos) {
       Map<DateTime, List> items = Map();
@@ -44,6 +42,20 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
       });
 
       setState(() => events = items);
+    });
+
+    serviceFeriado.list().forEach((feriados) {
+      Map<DateTime, List> items = Map();
+
+      feriados.forEach((feriado) {
+        if (items[feriado.data] == null) {
+          items[feriado.data] = List();
+        }
+
+        items[feriado.data].add(feriado.descricao);
+      });
+
+      setState(() => holidays = items);
     });
 
     selectedEvents = events != null && events[selectedDay] != null
@@ -74,7 +86,8 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
   }
 
   void onDaySelected(DateTime day, List events, List holidays) {
-    print('CALLBACK: onDaySelected');
+    selectedDay = day;
+
     setState(() {
       selectedEvents = events;
     });
@@ -87,7 +100,7 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           buildTableCalendar(),
-          Text("Serviços"),
+          Text("Serviços - ${dateFormat.format(selectedDay)}"),
           Expanded(child: buildEventList()),
         ],
       ),
@@ -95,7 +108,8 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ServicoPage()),
+            MaterialPageRoute(
+                builder: (context) => ServicoPage(data: selectedDay)),
           );
         },
         child: Icon(Icons.add),
@@ -194,7 +208,10 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
 
   Widget buildEventList() {
     if (selectedEvents.length == 0) {
-      return Text("Nenhum serviço para este dia!");
+      return Container(
+          margin: const EdgeInsets.only(top: 20),
+          child: Text("Nenhum serviço para este dia!",
+              style: TextStyle(fontSize: 16)));
     }
 
     return ListView.builder(
@@ -204,8 +221,11 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
 
         return ListTile(
           leading: Icon(Icons.calendar_today_outlined),
-          title: Text(item.toString()),
-          subtitle: Text("nada"),
+          title: Text(item.nome),
+          subtitle: Text(item.tipo,
+              style: TextStyle(
+                  color:
+                      (item.tipo == 'vermelha' ? Colors.red : Colors.black))),
           onTap: () => Navigator.push(
               context,
               MaterialPageRoute(

@@ -19,8 +19,6 @@ class MeuServicoApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // initialRoute: Routes.initial(),
-      // routes: Routes.get(),
       home: HomePage(),
     );
   }

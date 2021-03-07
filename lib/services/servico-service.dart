@@ -4,14 +4,14 @@ import 'package:uuid/uuid.dart';
 class ServicoService {
   final Database db = Database.get();
 
-  Servico save(
+  Future<Servico> save(
       {int id,
       String nome,
       int folga,
       DateTime data,
       String tipo,
       String grupo,
-      bool saveNext}) {
+      bool saveNext}) async {
     grupo = grupo == null ? Uuid().v1() : grupo;
 
     Servico servico = Servico(
@@ -23,7 +23,7 @@ class ServicoService {
         grupo: grupo);
 
     if (saveNext) {
-      this.saveNext(servico);
+      await this.saveNext(servico);
       return servico;
     }
 
@@ -31,9 +31,9 @@ class ServicoService {
     return servico;
   }
 
-  void delete(int id, bool excluirProximos) async {
+  Future delete(int id, bool excluirProximos) async {
     if (excluirProximos) {
-      this.deleteNext(id);
+      await this.deleteNext(id);
       return;
     }
 
@@ -81,13 +81,13 @@ class ServicoService {
       tipo: servico.tipo,
       grupo: servico.grupo);
 
-  void saveNext(Servico servico) async {
+  Future<void> saveNext(Servico servico) async {
     await db.deleteServicosByGrupo(servico.grupo);
     final DateTime finalDate =
         DateTime(servico.data.year, servico.data.month, servico.data.day)
             .add(Duration(days: 365));
 
-    Servico lastServico = servico;
+    Servico lastServico = createService(servico, servico.data);
     await db.insertServico(lastServico);
 
     List<DateTime> holidays =

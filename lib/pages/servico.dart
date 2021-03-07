@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -31,6 +29,7 @@ class ServicoState extends State<ServicoPage> {
   int tipo = 1;
   int calcularProximos = 0;
   String grupo;
+  bool loading = false;
 
   ServicoState(this.id, this.data);
 
@@ -46,6 +45,7 @@ class ServicoState extends State<ServicoPage> {
           dataSelected = servico.data;
           dataController.text = dateFormat.format(servico.data);
           tipo = service.getNumberByTipo(servico.tipo);
+          grupo = servico.grupo;
         });
       });
     } else if (this.data != null) {
@@ -69,8 +69,7 @@ class ServicoState extends State<ServicoPage> {
   }
 
   setDate(DateTime date) async {
-    DateTime dataSelected =
-        DateTime(date.year, date.month, date.day);
+    DateTime dataSelected = DateTime(date.year, date.month, date.day);
     int tipo = (await service.isDateWeekendOrHoliday(dataSelected) ? 2 : 1);
 
     setState(() {
@@ -95,9 +94,11 @@ class ServicoState extends State<ServicoPage> {
       if (picked != null && picked != dataSelected) setDate(picked);
     }
 
-    save(BuildContext context) {
-      if (form.currentState.validate()) {
-        service.save(
+    save(BuildContext context) async {
+      if (!this.loading && form.currentState.validate()) {
+        setState(() => this.loading = true);
+
+        await service.save(
             id: this.id,
             nome: nomeController.text,
             folga: int.parse(folgaController.text),
@@ -106,12 +107,12 @@ class ServicoState extends State<ServicoPage> {
             grupo: grupo,
             saveNext: calcularProximos == 1);
 
-        Navigator.pop(context);
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     }
 
-    delete(BuildContext context, bool excluirProximos) {
-      service.delete(this.id, excluirProximos);
+    delete(BuildContext context, bool excluirProximos) async {
+      await service.delete(this.id, excluirProximos);
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
 
@@ -268,23 +269,28 @@ class ServicoState extends State<ServicoPage> {
                             child: Text('Não')),
                       ],
                     ),
-                    Builder(
-                      builder: (btnContext) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        child: ButtonTheme(
-                            child: ElevatedButton(
-                                onPressed: () => save(btnContext),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(Icons.add),
-                                    Text(this.id == null
-                                        ? "Incluir serviço"
-                                        : "Alterar serviço")
-                                  ],
-                                ))),
-                      ),
-                    )
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: ButtonTheme(
+                          child: ElevatedButton(
+                              onPressed: () => save(context),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Visibility(
+                                      visible: !this.loading,
+                                      child: Icon(Icons.add)),
+                                  Text((this.loading
+                                      ? "Calculando..."
+                                      : (this.id == null
+                                          ? "Incluir serviço"
+                                          : "Alterar serviço")))
+                                ],
+                              ))),
+                    ),
+                    Visibility(
+                        visible: this.loading,
+                        child: Center(child: new CircularProgressIndicator()))
                   ],
                 ),
               ),
@@ -292,7 +298,7 @@ class ServicoState extends State<ServicoPage> {
           ]),
         ]),
         floatingActionButton: Visibility(
-          visible: this.id != null,
+          visible: this.id != null && !this.loading,
           child: FloatingActionButton(
             onPressed: () => showAlertDialog(context),
             child: Icon(Icons.delete),

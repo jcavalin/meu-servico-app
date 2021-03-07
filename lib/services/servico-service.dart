@@ -4,14 +4,13 @@ import 'package:uuid/uuid.dart';
 class ServicoService {
   final Database db = Database.get();
 
-  Servico save(
-      {int id,
-      String nome,
-      int folga,
-      DateTime data,
-      String tipo,
-      String grupo,
-      bool calcularProximos}) {
+  Servico save({int id,
+    String nome,
+    int folga,
+    DateTime data,
+    String tipo,
+    String grupo,
+    bool calcularProximos}) {
     grupo = grupo == null ? Uuid().v1() : grupo;
     Servico servico = Servico(
         id: id,
@@ -30,8 +29,19 @@ class ServicoService {
     return servico;
   }
 
-  void delete(int id, bool excluirProximos) =>
-      db.deleteServico(Servico(id: id));
+  void delete(int id, bool excluirProximos) async {
+    if (excluirProximos) {
+      this.deleteProximos(id);
+      return;
+    }
+
+    await db.deleteServico(Servico(id: id));
+  }
+
+  Future<void> deleteProximos(int id) async {
+    Servico servico = await this.get(id);
+    db.deleteServicoByGrupo(servico.grupo);
+  }
 
   Stream<List<Servico>> list() => db.getServicos();
 

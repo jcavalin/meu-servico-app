@@ -65,6 +65,11 @@ class Database extends _$Database {
             [(t) => OrderingTerm(expression: t.data, mode: OrderingMode.desc)]))
       .watch();
 
+  Future<List<DateTime>> getFeriadosByPeriod(DateTime start, DateTime end) => (select(feriados)
+      ..where((t) => t.data.isBetweenValues(start, end)))
+      .map((feriado) => feriado.data)
+      .get();
+
   Future<Feriado> getFeriado(int id) =>
       (select(feriados)..where((t) => t.id.equals(id))).getSingle();
 

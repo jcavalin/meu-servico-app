@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -47,10 +49,7 @@ class ServicoState extends State<ServicoPage> {
         });
       });
     } else if (this.data != null) {
-      setState(() {
-        dataSelected = DateTime(this.data.year, this.data.month, this.data.day);
-        dataController.text = dateFormat.format(dataSelected);
-      });
+      setDate(this.data);
     }
   }
 
@@ -69,6 +68,18 @@ class ServicoState extends State<ServicoPage> {
     super.dispose();
   }
 
+  setDate(DateTime date) async {
+    DateTime dataSelected =
+        DateTime(date.year, date.month, date.day);
+    int tipo = (await service.isDateWeekendOrHoliday(dataSelected) ? 2 : 1);
+
+    setState(() {
+      this.dataSelected = dataSelected;
+      dataController.text = dateFormat.format(dataSelected);
+      this.tipo = tipo;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final form = GlobalKey<FormState>();
@@ -80,11 +91,8 @@ class ServicoState extends State<ServicoPage> {
         firstDate: DateTime(2020),
         lastDate: DateTime(2090),
       );
-      if (picked != null && picked != dataSelected)
-        setState(() {
-          dataSelected = picked;
-          dataController.text = dateFormat.format(dataSelected);
-        });
+
+      if (picked != null && picked != dataSelected) setDate(picked);
     }
 
     save(BuildContext context) {

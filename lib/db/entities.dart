@@ -54,7 +54,8 @@ class Database extends _$Database {
       onUpgrade: (Migrator m, int from, int to) async {},
       beforeOpen: (details) async {
         if (details.wasCreated) {
-          FeriadosInit.get().forEach((feriado) => into(feriados).insert(feriado));
+          FeriadosInit.get()
+              .forEach((feriado) => into(feriados).insert(feriado));
         }
       });
 
@@ -77,6 +78,9 @@ class Database extends _$Database {
 
   // Serviço
   Stream<List<Servico>> getServicos() => select(servicos).watch();
+
+  Stream<List<Servico>> getServicosByDate(DateTime data) =>
+      (select(servicos)..where((t) => t.data.equals(data))).watch();
 
   Future<Servico> getServico(int id) =>
       (select(servicos)..where((t) => t.id.equals(id))).getSingle();

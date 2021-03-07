@@ -14,20 +14,29 @@ class ServicoService {
       bool calcularProximos}) {
     grupo = grupo == null ? Uuid().v1() : grupo;
     Servico servico = Servico(
-        id: id, nome: nome, folga: folga, data: data, tipo: tipo, grupo: grupo);
+        id: id,
+        nome: nome,
+        folga: folga,
+        data: DateTime(data.year, data.month, data.day),
+        tipo: tipo,
+        grupo: grupo);
 
     id == null ? db.insertServico(servico) : db.updateServico(servico);
 
-    if(calcularProximos) {
+    if (calcularProximos) {
       this.calcularProximos(servico);
     }
 
     return servico;
   }
 
-  void delete(int id, bool excluirProximos) => db.deleteServico(Servico(id: id));
+  void delete(int id, bool excluirProximos) =>
+      db.deleteServico(Servico(id: id));
 
   Stream<List<Servico>> list() => db.getServicos();
+
+  Stream<List<Servico>> listByDate(DateTime data) =>
+      db.getServicosByDate(DateTime(data.year, data.month, data.day));
 
   Future<Servico> get(int id) => db.getServico(id);
 
@@ -43,9 +52,9 @@ class ServicoService {
 
   int getNumberByTipo(String tipo) {
     Map tipos = {
-      'preta' : 1,
-      'vermelha' : 2,
-      'corrida' : 3,
+      'preta': 1,
+      'vermelha': 2,
+      'corrida': 3,
     };
 
     return tipos[tipo];

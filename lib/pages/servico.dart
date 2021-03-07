@@ -48,8 +48,8 @@ class ServicoState extends State<ServicoPage> {
       });
     } else if (this.data != null) {
       setState(() {
-        dataSelected = data;
-        dataController.text = dateFormat.format(data);
+        dataSelected = DateTime(this.data.year, this.data.month, this.data.day);
+        dataController.text = dateFormat.format(dataSelected);
       });
     }
   }

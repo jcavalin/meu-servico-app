@@ -58,9 +58,9 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
       setState(() => holidays = items);
     });
 
-    selectedEvents = events != null && events[selectedDay] != null
-        ? events[selectedDay]
-        : [];
+    getEventsByDay(selectedDay);
+
+    selectedEvents = [];
     calendarController = CalendarController();
 
     animationController = AnimationController(
@@ -87,9 +87,16 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
 
   void onDaySelected(DateTime day, List events, List holidays) {
     selectedDay = day;
+    getEventsByDay(selectedDay);
+  }
 
-    setState(() {
-      selectedEvents = events;
+  void getEventsByDay(DateTime data) {
+    service.listByDate(data).forEach((servicos) {
+      List items = List();
+
+      servicos.forEach((servico) => items.add(servico));
+
+      setState(() => selectedEvents = items);
     });
   }
 

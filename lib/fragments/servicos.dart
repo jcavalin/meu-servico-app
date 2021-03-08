@@ -20,7 +20,7 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
   final dateFormat = DateFormat('dd/MM/yyyy');
 
   Map<DateTime, List> events;
-  Map<DateTime, List> holidays;
+  Map<DateTime, List> holidays = Map();
   List selectedEvents;
   AnimationController animationController;
   CalendarController calendarController;

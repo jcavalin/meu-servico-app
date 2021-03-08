@@ -44,15 +44,23 @@ class HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text(
-                'Meu serviço',
-                style: TextStyle(color: Colors.white, fontSize: 25),
-              ),
+              child: Column(children: <Widget>[
+                Image(
+                  image: AssetImage('assets/images/stormtrooper.png'),
+                  width: 80,
+                ),
+                Text(
+                  'Meu serviço',
+                  style: TextStyle(color: Colors.white, fontSize: 25),
+                ),
+                Text(
+                  'v1.0.0',
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ]),
               decoration: BoxDecoration(
-                  color: Colors.blue,
-                  image: DecorationImage(
-                      fit: BoxFit.scaleDown,
-                      image: AssetImage('assets/images/stormtrooper.png'))),
+                color: Colors.blue,
+              ),
             ),
             new Column(children: drawerOptions)
           ],

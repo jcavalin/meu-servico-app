@@ -182,7 +182,9 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
                       '${date.day}',
                       style: TextStyle().copyWith(
                         color: isSelected
-                            ? Colors.white
+                            ? isWeekendOrHoliday(date)
+                                ? Colors.red[100]
+                                : Colors.white
                             : isWeekendOrHoliday(date)
                                 ? Colors.red
                                 : Colors.black,

@@ -100,6 +100,11 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
     });
   }
 
+  bool isWeekendOrHoliday(DateTime date) =>
+      date.weekday == DateTime.sunday ||
+      date.weekday == DateTime.saturday ||
+      this.holidays.containsKey(date);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,19 +160,37 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
       ),
       onDaySelected: onDaySelected,
       builders: CalendarBuilders(
-        todayDayBuilder: (context, date, _) {
-          return Container(
-            margin: const EdgeInsets.all(4.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(width: 1, color: Colors.blue),
-            ),
-            child: Center(
-              child: Text(
-                '${date.day}',
-              ),
-            ),
-          );
+        todayDayBuilder: (context, date, events) {
+          bool isSelected = calendarController.isSelected(date);
+          return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: isSelected
+                        ? Border.all(width: 0)
+                        : Border.all(width: 1, color: Colors.blue),
+                    color: isSelected ? Colors.blue : Colors.white,
+                  ),
+                  width: 42.0,
+                  height: 42.0,
+                  child: Center(
+                    child: Text(
+                      '${date.day}',
+                      style: TextStyle().copyWith(
+                        color: isSelected
+                            ? Colors.white
+                            : isWeekendOrHoliday(date)
+                                ? Colors.red
+                                : Colors.black,
+                      ),
+                    ),
+                  ),
+                )
+              ]);
         },
         markersBuilder: (context, date, events, holidays) {
           final children = <Widget>[];
@@ -192,9 +215,9 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: calendarController.isSelected(date)
-                  ? Colors.brown[500]
-                  : calendarController.isToday(date)
-                      ? Colors.brown[300]
+                  ? Colors.blue
+                  : isWeekendOrHoliday(date)
+                      ? Colors.red
                       : Colors.black87,
             ),
             width: 42.0,
@@ -203,7 +226,10 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
               child: Text(
                 '${date.day}',
                 style: TextStyle().copyWith(
-                  color: Colors.white,
+                  color: calendarController.isSelected(date) &&
+                          isWeekendOrHoliday(date)
+                      ? Colors.red[100]
+                      : Colors.white,
                 ),
               ),
             ),

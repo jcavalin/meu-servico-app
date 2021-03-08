@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meu_servico_app/f-routes.dart';
+import 'package:meu_servico_app/services/version-service.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -54,7 +55,7 @@ class HomePageState extends State<HomePage> {
                   style: TextStyle(color: Colors.white, fontSize: 25),
                 ),
                 Text(
-                  'v1.0.0',
+                  VersionService.get(),
                   style: TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ]),

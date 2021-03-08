@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:meu_servico_app/fragments/feriados.dart';
 import 'package:meu_servico_app/fragments/servicos.dart';
 
+import 'fragments/about.dart';
+
 class Item {
   String title;
   IconData icon;
@@ -27,6 +29,9 @@ class FragmentRoutes {
       new Item('Feriados', () {
         return new FeriadosPage();
       }, Icons.calendar_today_outlined),
+      new Item('Sobre', () {
+        return new AboutPage();
+      }, Icons.help),
     ];
   }
 }

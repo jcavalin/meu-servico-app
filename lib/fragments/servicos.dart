@@ -86,6 +86,13 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
   }
 
   void onDaySelected(DateTime day, List events, List holidays) {
+    if (events.length == 1) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ServicoPage(id: events[0].id)));
+    }
+
     selectedDay = day;
     getEventsByDay(selectedDay);
   }
@@ -112,7 +119,23 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           buildTableCalendar(),
-          Text("Serviços - ${dateFormat.format(selectedDay)}"),
+          Divider(
+            height: 1,
+            thickness: 1,
+            indent: 13,
+            endIndent: 13,
+            color: Colors.grey[350],
+          ),
+          Container(
+            margin: const EdgeInsets.only(top: 10),
+            child: Text("${dateFormat.format(selectedDay)}",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isWeekendOrHoliday(selectedDay)
+                        ? Colors.red
+                        : Colors.black)),
+          ),
           Expanded(child: buildEventList()),
         ],
       ),
@@ -242,28 +265,60 @@ class ServicosState extends State<ServicosPage> with TickerProviderStateMixin {
   Widget buildEventList() {
     if (selectedEvents.length == 0) {
       return Container(
-          margin: const EdgeInsets.only(top: 20),
+          margin: const EdgeInsets.only(top: 30),
           child: Text("Nenhum serviço para este dia!",
-              style: TextStyle(fontSize: 16)));
+              style: TextStyle(fontSize: 18)));
     }
 
     return ListView.builder(
       itemCount: selectedEvents.length,
       itemBuilder: (context, index) {
         final item = selectedEvents[index];
+        final isLast = selectedEvents.length == (index + 1);
 
-        return ListTile(
-          leading: Icon(Icons.calendar_today_outlined),
-          title: Text(item.nome),
-          subtitle: Text(item.tipo,
-              style: TextStyle(
-                  color:
-                      (item.tipo == 'vermelha' ? Colors.red : Colors.black))),
-          onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ServicoPage(id: item.id)))
-              .then((_) => getEventsByDay(selectedDay)),
+        return Column(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.calendar_today_outlined),
+              title: Container(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(item.nome),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+                              alignment: Alignment.center,
+                              margin: const EdgeInsets.only(top: 5),
+                              decoration: new BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: (item.tipo == 'vermelha'
+                                      ? Colors.red
+                                      : Colors.black)),
+                              padding:
+                                  new EdgeInsets.fromLTRB(2.0, 2.0, 2.0, 2.0),
+                              width: 85,
+                              child: Text(item.tipo,
+                                  style: TextStyle(color: Colors.white)))
+                        ],
+                      )
+                    ]),
+              ),
+              onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ServicoPage(id: item.id)))
+                  .then((_) => getEventsByDay(selectedDay)),
+            ),
+            Divider(
+              height: 1,
+              thickness: 1,
+              indent: 60,
+              endIndent: 20,
+              color: isLast ? Colors.white : Colors.grey[350],
+            ),
+          ],
         );
       },
     );

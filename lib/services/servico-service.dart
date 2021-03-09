@@ -82,7 +82,7 @@ class ServicoService {
       grupo: servico.grupo);
 
   Future<void> saveNext(Servico servico) async {
-    await db.deleteServicosByGrupo(servico.grupo);
+    await db.deleteNextServicos(servico);
     final DateTime finalDate =
         DateTime(servico.data.year, servico.data.month, servico.data.day)
             .add(Duration(days: 365));
